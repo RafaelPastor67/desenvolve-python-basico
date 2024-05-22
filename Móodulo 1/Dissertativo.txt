@@ -1,0 +1,11 @@
+#Entrada
+Armazene o n(numero que será multiplicado pelo 9)
+
+#Processamento
+subtrair n-1 e armazenar na variavel n1
+subtrair n-10 e armazenar na varável n2
+faça (n1*10)+n2 e armazene na variavel r
+
+#Saída
+Imprima r e encerre o programa
+
