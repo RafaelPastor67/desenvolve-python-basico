@@ -1,0 +1,5 @@
+classe = input("Escolha a classe(guerreiro, mago, ou arqueiro): ")
+forca = int(input("Diginte os pontos de força(de 1 a 20): "))
+magia = int(input("Diginte os pontos de magia(de 1 a 20): "))
+resultado = (classe == 'guerreiro' and forca >= 15 and magia <=10) or (classe =='mago' and forca <= 10 and magia >= 15) or (classe == 'arqueiro ' and 5 <= forca <= 15 and 5 <= magia <= 15)
+print(f'A classe é válida: {resultado}')
