@@ -40,21 +40,27 @@ def criar_novo_usuario(role):
     adicionar_dados_csv(usuarios_csv,dados_novo_usuario)
     print("\nConta criada com sucesso!")
 
-#Igual a função acima, porém para produtos, ela é diferente pois o id é o número da última linha
+#Igual a função acima, porém para produtos, ela é diferente pois o id é gerado automaticamente
 def adicionar_produto():
-    with open(produtos_csv, 'r') as file:
-        reader = csv.reader(file)
-        linhas = list(reader)
+    # Obter o maior ID atual no arquivo CSV
+    maior_id = 0
+    with open(produtos_csv, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for linha in reader:
+            try:
+                maior_id = max(maior_id, int(linha['codigo']))
+            except ValueError:
+                continue
 
-        # Pegando o número da última linha
-        numero_ultima_linha = len(linhas)
-
+    # Criar o novo produto com ID único
     novo_produto = input("Nome do Produto: ")
     novo_preco = input("Preço: ")
-    id = numero_ultima_linha
-    dados_novo_produto=[id,novo_produto,novo_preco]
-    adicionar_dados_csv(produtos_csv,dados_novo_produto)
-    print("\nProduto adicionado com sucesso!")
+    id_unico = maior_id + 1
+    dados_novo_produto = [id_unico, novo_produto, novo_preco]
+
+    # Adicionar ao CSV
+    adicionar_dados_csv(produtos_csv, dados_novo_produto)
+    print(f"\nProduto adicionado com sucesso! ID: {id_unico}")
 
 def mostrarestoque():#Transforma o csv produducts em dicionario
     with open(produtos_csv, mode='r', encoding='utf-8') as arquivo:
@@ -73,28 +79,137 @@ def mostrarusuario():#imprime o dicionario de usuarios formatado para facil leit
         role = dados.get("Role")
         print(f"{user} | Nome: {nome} | Senha: {senha} | Cargo: {role}")
 
+def excluirproduto():
+    codigo = input("Digite o código do produto que deseja excluir: ")
+    linhas_atualizadas = []
+    produto_encontrado = False
+
+    with open(produtos_csv, mode='r', encoding='utf-8') as arquivo:
+        leitor = csv.DictReader(arquivo)
+        campos = leitor.fieldnames
+        for linha in leitor:
+            if linha['codigo'] != codigo:
+                linhas_atualizadas.append(linha)
+            else:
+                produto_encontrado = True
+
+    if produto_encontrado:
+        with open(produtos_csv, mode='w', newline='', encoding='utf-8') as arquivo:
+            escritor = csv.DictWriter(arquivo, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(linhas_atualizadas)
+        print(f"Produto com código {codigo} removido com sucesso!")
+    else:
+        print("Produto não encontrado!")
+
+def excluirusuario():
+    usuario = input("Digite o nome de usuario que deseja excluir: ")
+    linhas_atualizadas = []
+    usuario_encontrado = False
+
+    with open(usuarios_csv, mode='r', encoding='utf-8') as arquivo:
+        leitor = csv.DictReader(arquivo)
+        campos = leitor.fieldnames
+        for linha in leitor:
+            if linha['user'] != usuario:
+                linhas_atualizadas.append(linha)
+            else:
+                usuario_encontrado = True
+
+    if usuario_encontrado:
+        with open(usuarios_csv, mode='w', newline='', encoding='utf-8') as arquivo:
+            escritor = csv.DictWriter(arquivo, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(linhas_atualizadas)
+        print(f"Usuario {usuario} removido com sucesso!")
+    else:
+        print("Usuário não encontrado!")        
+
+def editar_produto():
+    codigo = input("Digite o código do produto que deseja editar: ")
+    linhas_atualizadas = []
+    produto_encontrado = False
+
+    with open(produtos_csv, mode='r', encoding='utf-8') as arquivo:
+        leitor = csv.DictReader(arquivo)
+        campos = leitor.fieldnames
+        for linha in leitor:
+            if linha['codigo'] == codigo:
+                produto_encontrado = True
+                print(f"Produto encontrado: {linha['produto']} - Preço: R${linha['preço']}")
+                novo_nome = input("Digite o novo nome do produto (deixe vazio para manter o atual): ") or linha['produto']
+                novo_preco = input("Digite o novo preço do produto (deixe vazio para manter o atual): ") or linha['preço']
+                linha['produto'] = novo_nome
+                linha['preço'] = novo_preco
+                print("Produto atualizado com sucesso!")
+            linhas_atualizadas.append(linha)
+
+    if produto_encontrado:
+        with open(produtos_csv, mode='w', newline='', encoding='utf-8') as arquivo:
+            escritor = csv.DictWriter(arquivo, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(linhas_atualizadas)
+    else:
+        print("Produto não encontrado!")
+
+def editar_usuario():
+    user = input("Digite o usuario que deseja editar: ")
+    linhas_atualizadas = []
+    user_encontrado = False
+
+    with open(usuarios_csv, mode='r', encoding='utf-8') as arquivo:
+        leitor = csv.DictReader(arquivo)
+        campos = leitor.fieldnames
+        for linha in leitor:
+            if linha['user'] == user:
+                user_encontrado = True
+                print(f"Usuario encontrado: {linha['user']} -Senha: {linha['Password']} - Nome: {linha['Nome']} - Role: {linha['Role']}")
+                novo_usuario = input("Digite o novo nome de usuário (deixe vazio para manter o atual): ") or linha['user']
+                novo_nome = input("Digite o Nome completo (deixe vazio para manter o atual): ") or linha['Nome']
+                nova_Senha = input("Digite a nova senha (deixe vazio para manter o atual): ") or linha['Password']
+                novo_cargo = input("Digite o novo cargo (Admin,Employer,cliente) (deixe vazio para manter o atual): ") or linha['Role']
+                linha['user'] = novo_usuario
+                linha['Nome'] = novo_nome
+                linha['Password'] = nova_Senha
+                linha['Role'] = novo_cargo
+                print("usuário atualizado com sucesso!")
+            linhas_atualizadas.append(linha)
+
+    if user_encontrado:
+        with open(usuarios_csv, mode='w', newline='', encoding='utf-8') as arquivo:
+            escritor = csv.DictWriter(arquivo, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(linhas_atualizadas)
+    else:
+        print("Usuario não encontrado!")
+
 def menuadmin(escolha):
+
     if escolha == "1":
         escolha2 = input("1. Ver estoque\n2. Ver Usuários\nEscolha uma opção: ")
         if escolha2 == '1':
             mostrarestoque()
         if escolha2 == '2':
              mostrarusuario()
+
     elif escolha == '2':
         escolha2 = input("1. Adicionar Produto\n2. Remover Produto\n3. Editar Produto\nEscolha uma opção: ")
         if escolha2 == '1':
             adicionar_produto()
         elif escolha2 == '2':
             excluirproduto()
-
+        elif escolha2 == '3':
+            editar_produto()
 
     elif escolha == '3':
         escolha2 = input("1. Criar Usuário\n2. Remover Usuário\n3. Editar Usuário\nEscolha uma opção: ")
         if escolha2 == '1':
             role = input("Qual o cargo do novo usuário?(Admin,Employer,cliente): ")
             criar_novo_usuario(role)
-
-
+        elif escolha2 == '2':
+            excluirusuario()
+        elif escolha2 == '3':
+            editar_usuario()
 
     elif escolha == '4':
         programa_encerrado()
@@ -106,25 +221,14 @@ def menuemployer(escolha):
         escolha2 = input("1. Adicionar Produto\n2. Remover Produto\n3. Editar Produto\nEscolha uma opção: ")
         if escolha2 == '1':
             adicionar_produto()
+        elif escolha2 == '2':
+            excluirproduto()
+        elif escolha2 == '3':
+            editar_produto()
     
-
-
 def menucliente():
     print("Você só tem permissão para ver o catálogo")
     mostrarestoque()
-
-def excluirproduto():
-    codigo = input("Digite o código do produto que deseja excluir: ")
-    with open(produtos_csv, mode='r', encoding='utf-8') as arquivo:
-        leitor = csv.DictReader(arquivo)
-        for linha in leitor:
-            if linha['codigo'] == codigo:
-                
-                print(f"Produto {linha['produto']} removido com sucesso!")
-                break
-        else:
-            print("Produto não encontrado!")
-
 
 barrinhas = "---------------------------"
 #############################################################################################################################################################################
