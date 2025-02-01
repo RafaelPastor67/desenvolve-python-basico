@@ -1,6 +1,6 @@
 import random
 
-lista = [-1, -2, -3, 5, -4, -5, -6, -7, 2, -8, -9]
+lista = [random.randint(-10, 10) for i in range(20)]
 print(lista)
 contador = []
 sequencia_max = []
@@ -11,8 +11,6 @@ for indice, i in enumerate(lista):
             sequencia_max = contador
     else:
         contador = []
-print(lista.index(sequencia_max))
-print(lista.index(contador))
+print(sequencia_max)
+del(lista[sequencia_max[0]:sequencia_max[-1]+1])
 print(lista)
-
-#random.randint(-10, 10) for i in range(20)
